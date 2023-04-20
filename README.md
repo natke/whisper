@@ -2,24 +2,24 @@
 
 ## Pre-requisites
 
-- [] Explicitly install onnxruntime-extensions dependencies manually
-- [] Clone the entire onnxruntime repo to export the whisper models
-- [] Run export script before whisper e2e script
-- [] whisper_e2e.py hard codes whisper-base.en
-- [] Manually download test audio file
-- [] Use ONNX Runtime nightly and ONNX Runtime extensions nightly
+- [ ] Explicitly install onnxruntime-extensions dependencies manually
+- [ ] Clone the entire onnxruntime repo to export the whisper models
+- [ ] Run export script before whisper e2e script
+- [ ] whisper_e2e.py hard codes whisper-base.en
+- [ ] Manually download test audio file
+- [ ] Use ONNX Runtime nightly and ONNX Runtime extensions nightly
 
 ## Issues that need to be fixed
 
-- [] Whisper medium does not export
-- [] Export script gives a false error
+- [ ] Whisper medium does not export
+- [ ] Export script gives a false error
 
    ```bash
      PyTorch and OnnxRuntime results max difference = True
      PyTorch and OnnxRuntime results are NOT close
    ```
 
-- [] Export script errors if you don't provide parameters (should give usage)
+- [ ] Export script errors if you don't provide parameters (should give usage)
 
 ## Model preparation
 
@@ -33,7 +33,7 @@ pip install transformers
 pip install flatbuffers
 pip install coloredlogs
 pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/ ort-nightly==1.15.dev20230410004
-pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/ onnxruntime-extensions
+pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/ onnxruntime-extensions==0.8.0.299750
 ```
 
 ### Clone ONNX Runtime repo
