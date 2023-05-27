@@ -1,69 +1,63 @@
-# Whisper sample to support blog
+# Whisper model generation and code samples
 
-## Pre-requisites
+## Environment
 
-- [ ] Explicitly install onnxruntime-extensions dependencies manually
-- [ ] Run export script before whisper e2e script
-- [ ] whisper_e2e.py hard codes whisper-base.en
-- [ ] Manually download test audio file
-- [ ] Use ONNX Runtime nightly and ONNX Runtime extensions nightly
-
-## Issues that need to be fixed
-
-- [ ] Whisper medium does not export
-- [ ] Export script errors if you don't provide parameters (should give usage)
-
-## Model preparation
-
-### Install dependencies
+Create a conda environment with the following packages.
 
 ```bash
 conda create -n whisper
 pip install onnx
 pip install torch
 pip install transformers
-pip install flatbuffers
-pip install coloredlogs
-pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/ ort-nightly
-pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/ onnxruntime-extensions
+pip install optimum[onnx]
+pip install onnxruntime
+pip install onnxruntime-extensions
 ```
 
-### Run whisper export script
+Or install from the saved environment [whisper.yml](./whisper.yml)
+
+## PyTorch HuggingFace
+
+Run from [pytorch](./pytorch)
+
+## HuggingFace Optimum
+
+Run from [optimum](./optimum)
+
+## Generate all in one model with Olive
+
+Configs for each of the model variants can be found in [./models](models)
 
 ```bash
-cd onnxruntime/onnxruntime/python/tools/transformers/models/whisper
-python convert_to_onnx.py -m openai/whisper-base.en --output whisper -e
+cd models/whisper-tiny
+python prepare_whisper_configs.py --model_name openai/whisper-tiny.en
+python -m olive.workflows.run --config whisper_cpu_int8.json --setup
+python -m olive.workflows.run --config whisper_cpu_int8.json
+```
+
+## Run with ONNX Runtime
+
+```bash
+cd cpu
+python transcribe.py
+```
+
+## Export model without Olive
+
+```bash
+python -m onnxruntime.transformers.models.whisper.convert_to_onnx -m openai/whisper-base.en --output whisper -e
 ```
 
 ### Run script to generate composite model
 
 ```bash
-cd whisper
-mkdir -p test/data
-cd test/data
 curl https://raw.githubusercontent.com/microsoft/onnxruntime-extensions/main/test/data/1272-141231-0002.mp3 > 1272-141231-0002.mp3 
-cd ../../openai
 curl https://raw.githubusercontent.com/microsoft/onnxruntime-extensions/main/tutorials/whisper_e2e.py > whisper_e2e.py
-python whisper_e2e.py
+python whisper_e2e.py -a 1272-141231-0002.mp3 -m whisper/openai/whisper-base.en_beamsearch.onnx
 ```
 
-### Prepare with Olive
+Produces
 
-## Model targets
-
-
-|Size|Parameters|English-only|Multilingual|
-|----|----------|------------|------------|
-|tiny|39 M|✓|	✓|
-|base|74 M|✓|	✓|
-|small|244M|	✓|	✓|
-|medium|769 M|	✓|	✓|
-|large|1550 M|	x|	✓|
-|large-v2|1550 M|	x|	✓|
-
-
-
-## Resources
-
-https://blog.deepgram.com/benchmarking-top-open-source-speech-models/
-
+```bash
+ whisper-base.en_all.onnx.data 
+```

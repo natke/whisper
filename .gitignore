@@ -1,2 +1,8 @@
 onnxruntime
 __pycache__
+cache_models
+*.onnx
+*.onnx.backup
+*.bin
+*.zip
+cache

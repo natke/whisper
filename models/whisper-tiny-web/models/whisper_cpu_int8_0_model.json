@@ -1,0 +1,12 @@
+{
+    "type": "ONNXModel",
+    "config": {
+        "model_path": "C:\\Users\\nakersha\\Develop\\samples\\whisper\\Olive\\examples\\whisper-tiny-web\\models\\whisper_cpu_int8_0_model.onnx",
+        "name": null,
+        "model_storage_kind": "file",
+        "version": null,
+        "inference_settings": null,
+        "use_ort_extensions": true,
+        "hf_config": null
+    }
+}
