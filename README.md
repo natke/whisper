@@ -14,6 +14,14 @@ pip install onnxruntime
 pip install onnxruntime-extensions
 ```
 
+### Use nightly packages
+
+```bash
+pip install ort-nightly==1.16.0.dev20230701001 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
+```
+
+### Install from conda spec
+
 Or install from the saved environment [whisper.yml](./whisper.yml)
 
 ## PyTorch HuggingFace

@@ -10,7 +10,7 @@ def load_audio(audio_file):
 def get_inputs(audio):
     inputs = {
         "audio_stream": np.array([audio]),
-        "max_length": np.array([30], dtype=np.int32),
+        "max_length": np.array([500], dtype=np.int32),
         "min_length": np.array([1], dtype=np.int32),
         "num_beams": np.array([2], dtype=np.int32),
         "num_return_sequences": np.array([1], dtype=np.int32),

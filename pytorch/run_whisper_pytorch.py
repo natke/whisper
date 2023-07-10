@@ -4,13 +4,11 @@ from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 parser = argparse.ArgumentParser(description="Test output of Whisper Model")
 parser.add_argument("--model", type=str, required=True, help="Whisper model to use")
-parser.add_argument("--audio", type=str, default=None,
-    help="Path to audio file. If not provided, will use the test data from the config.",
-)
+parser.add_argument("--audio", type=str, required=True, help="Path to audio file.")
+
 args = parser.parse_args()
 model = args.model
 audio = args.audio
-onnxruntime = args.onnxruntime
 
 speech, _ = librosa.load(audio)
 
