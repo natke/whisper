@@ -6,7 +6,7 @@
             "script_dir": "code",
             "hf_config": {
                 "model_class": "WhisperForConditionalGeneration",
-                "model_name": "openai/whisper-tiny",
+                "model_name": "openai/whisper-small",
                 "components": [
                     {
                         "name": "encoder_decoder_init",
@@ -67,8 +67,8 @@
             "type": "OrtTransformersOptimization",
             "config": {
                 "model_type": "bart",
-                "num_heads": 6,
-                "hidden_size": 384,
+                "num_heads": 12,
+                "hidden_size": 768,
                 "optimization_options": {
                     "use_multi_head_attention": true
                 },
@@ -86,7 +86,7 @@
             "config": {
                 "tool_command": "whisper",
                 "tool_command_args": {
-                    "model_name": "openai/whisper-tiny",
+                    "model_name": "openai/whisper-small",
                     "testdata_filepath": "data\\1272-141231-0002.mp3",
                     "use_audio_decoder": true
                 }
