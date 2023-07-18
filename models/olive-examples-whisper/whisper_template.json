@@ -1,13 +1,13 @@
 {
-    "input_model": {
+    "input_model":{
         "type": "PyTorchModel",
         "config": {
             "model_script": "code/user_script.py",
             "script_dir": "code",
             "hf_config": {
-                "model_class": "WhisperForConditionalGeneration",
-                "model_name": "openai/whisper-small",
-                "components": [
+                "model_class" : "WhisperForConditionalGeneration",
+                "model_name" : "<place_holder>",
+                "components" : [
                     {
                         "name": "encoder_decoder_init",
                         "io_config": "get_encdec_io_config",
@@ -27,11 +27,7 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "config": {
-                "accelerators": [
-                    "gpu"
-                ]
-            }
+            "config": {"accelerators": ["<place_holder>"]}
         }
     },
     "evaluators": {
@@ -41,16 +37,13 @@
                     "name": "latency",
                     "type": "latency",
                     "sub_types": [
-                        {
-                            "name": "avg",
-                            "priority": 1
-                        }
+                        {"name": "avg", "priority": 1}
                     ],
                     "user_config": {
                         "user_script": "code/user_script.py",
                         "script_dir": "code",
                         "data_dir": "data",
-                        "dataloader_func": "whisper_audio_decoder_dataloader"
+                        "dataloader_func": "<place_holder>"
                     }
                 }
             ]
@@ -67,21 +60,29 @@
             "type": "OrtTransformersOptimization",
             "config": {
                 "model_type": "bart",
-                "num_heads": 12,
-                "hidden_size": 768,
-                "optimization_options": {
-                    "use_multi_head_attention": true
-                },
-                "use_gpu": true
+                "num_heads": "<place_holder>",
+                "hidden_size": "<place_holder>",
+                "optimization_options": {"use_multi_head_attention": true},
+                "use_gpu": "<place_holder>"
             }
         },
         "mixed_precision": {
             "type": "OrtMixedPrecision"
         },
-        "insert_beam_search": {
-            "type": "InsertBeamSearch",
+        "onnx_dynamic_quantization": {
+            "type": "OnnxDynamicQuantization",
+            "disable_search": true,
             "config": {
-                "use_forced_decoder_ids": true
+                "per_channel": false,
+                "reduce_range": false,
+                "op_types_to_quantize": ["MatMul", "Gemm", "Gather"],
+                "MatMulConstBOnly": false
+            }
+        },
+        "insert_beam_search" : {
+            "type" : "InsertBeamSearch",
+            "config": {
+                "use_forced_decoder_ids": "<place_holder>"
             }
         },
         "prepost": {
@@ -89,9 +90,9 @@
             "config": {
                 "tool_command": "whisper",
                 "tool_command_args": {
-                    "model_name": "openai/whisper-small",
-                    "testdata_filepath": "data\\1272-141231-0002.mp3",
-                    "use_audio_decoder": true
+                    "model_name" : "<place_holder>",
+                    "testdata_filepath": "<place_holder>",
+                    "use_audio_decoder" : "<place_holder>"
                 }
             }
         }
@@ -105,10 +106,10 @@
         "clean_cache": false,
         "cache_dir": "cache",
         "output_dir": "models",
-        "output_name": "whisper_gpu_fp16",
+        "output_name": "<place_holder>",
         "packaging_config": {
             "type": "Zipfile",
-            "name": "whisper_gpu_fp16"
+            "name": "<place_holder>"
         }
     }
 }
