@@ -1,6 +1,6 @@
 # Config for Hindi transcription
 
-1. Ceate a new conda environment
+1. Create a new conda environment
 
 ```bash
 conda create -n whisper Python=3.9
@@ -9,7 +9,7 @@ conda activate whisper
 
 2. Clone the latest Olive and install from source
 
-```bash`
+```bash
 git clone git@github.com:microsoft/Olive.git
 cd Olive
 pip install .
