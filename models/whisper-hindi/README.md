@@ -4,6 +4,7 @@ This folder contains a sample use case of Olive to optimize a [Whisper](https://
 Performs optimization pipeline:
 - CPU, FP32: *PyTorch Model -> Onnx Model -> Transformers Optimized Onnx Model -> Insert Beam Search Op -> Insert Pre/Post Processing Ops*
 - CPU, INT8: *PyTorch Model -> Onnx Model -> Transformers Optimized Onnx Model -> Dynamic Quantized Onnx Model -> Insert Beam Search Op -> Insert Pre/Post Processing Ops*
+- CPU, INT8: *PyTorch Model -> Onnx Model -> Transformers Optimized Onnx Model -> Intel® Neural Compressor Dynamic Quantized Onnx Model -> Insert Beam Search Op -> Insert Pre/Post Processing Ops*
 - GPU, FP32: *PyTorch Model -> Onnx Model -> Transformers Optimized Onnx Model -> Insert Beam Search Op -> Insert Pre/Post Processing Ops*
 - GPU, FP16: *PyTorch Model -> Onnx Model -> Transformers Optimized Onnx Model -> Mixed Precision Model -> Insert Beam Search Op -> Insert Pre/Post Processing Ops*
 - GPU, INT8: *PyTorch Model -> Onnx Model -> Dynamic Quantized Onnx Model -> Insert Beam Search Op -> Insert Pre/Post Processing Ops*
@@ -17,6 +18,8 @@ Outputs the final model and latency results.
 
 Refer to the instructions in the [examples README](../README.md) to clone the repository and install Olive.
 
+If you want to run the optimization pipeline with Intel® Neural Compressor, please make sure that `olive-ai[inc]` is installed.
+
 ### Pip requirements
 Install the necessary python packages:
 ```
@@ -25,9 +28,13 @@ python -m pip install -r requirements.txt
 
 ### Prepare workflow config json
 ```
-python prepare_whisper_configs.py [--no_audio_decoder] [--multiligual]
+python prepare_whisper_configs.py [--model_name MODEL_NAME] [--no_audio_decoder] [--multilingual]
+
+# For example, using whisper tiny model
+python prepare_whisper_configs.py --model_name openai/whisper-tiny.en
 ```
 
+`--model_name MODEL_NAME` is the name or path of the whisper model. The default value is `openai/whisper-tiny.en`.  
 `--no_audio_decoder` is optional. If not provided, will use audio decoder in the preprocessing ops.
 
 **Note:** If `--no_audio_decoder` is provided, you need to install `librosa` package before running the optimization steps below.
