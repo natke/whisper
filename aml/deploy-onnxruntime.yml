@@ -1,0 +1,12 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+name: onnxruntime
+endpoint_name: whisper
+model: azureml:whisper-tiny:1
+code_configuration:
+  code: ../scoring
+  scoring_script: score.py
+environment: 
+  conda_file: ./env.yml
+  image: mcr.microsoft.com/azureml/inference-base-gpu-2004:latest
+instance_type: Standard_NC6s_v3
+instance_count: 1
