@@ -1,58 +1,96 @@
 # Config for Hindi transcription
 
+## Create environment and install dependencies
+
 1. Create a new conda environment
 
-```bash
-conda create -n whisper Python=3.9
-conda activate whisper
-```
+   ```bash
+   conda create -n whisper Python=3.9
+   conda activate whisper
+   ```
 
 2. Clone the latest Olive and install from source
 
-```bash
-git clone git@github.com:microsoft/Olive.git
-cd Olive
-pip install .
-```
+   ```bash
+   git clone git@github.com:microsoft/Olive.git
+   cd Olive
+   pip install .
+   ```
 
-3. Install ORT nightly as per the Olive README
+3. Change into the examples/whisper directory
 
-```bash
-python -m pip uninstall -y onnxruntime ort-nightly
-python -m pip install ort-nightly --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
-```
+   ```bash
+   cd examples/whisper
+   ```
 
-4. Install onnxruntime-extensions 0.8.0
+4. Install the dependencies specified by Olive
 
-```bash
-pip install onnxruntime-extensions
-```
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
 
-5. Change into the examples/whisper directory
+5. Install ORT nightly as per the Olive README
 
-```bash
-cd examples/whisper
-```
+   ```bash
+   python -m pip uninstall -y onnxruntime ort-nightly
+   python -m pip install ort-nightly --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
+   ```
 
-6. Prepare the olive configs
+## Prepare model
+
+### HuggingFace whisper model
+
+If you have a HuggingFace whisper model, then prepare the configs with Olive.
 
 ```bash
 python prepare_whisper_configs.py --model_name vasista22/whisper-hindi-small --multilingual
 ```
 
-7. Setup the model creation
+### OpenAI whisper model
+
+If fine-tuned the OpenAI whisper model, then convert the weights to HuggingFace format.
+
+```bash
+python -m transformers.models.whisper.convert_openai_to_hf --checkpoint_path <<location of your OpenAI whisper weights file .pt>> --pytorch_dump_folder_path data/whisper-hindi
+```
+
+### PyTorch HuggingFace whisper weights
+
+If you have PyTorch model weights, then load them into a model suitable for Olive processing using the following script.
+
+```python
+from transformers import AutoProcessor, AutoConfig
+
+# original model. Replace this with the whisper variant you are using 
+original_model_name = "openai/whisper-medium"
+
+# load config, processor
+config = AutoConfig.from_pretrained(original_model_name)
+processor = AutoProcessor.from_pretrained(original_model_name)
+
+# path to save the fine-tuned model in transformers pre-trained model format
+model_path = "data/whisper-hindi"
+
+# save config, processor
+config.save_pretrained(model_path)
+processor.save_pretrained(model_path)
+```
+
+## Generate model and test transcription
+
+1. Setup the model creation
 
 ```bash
 python -m olive.workflows.run --config whisper_cpu_fp32.json --setup
 ```
 
-8. Generate the model
+2. Generate the model
 
 ```bash
 python -m olive.workflows.run --config whisper_cpu_fp32.json
 ```
 
-9. Test trancription
+3. Test transcription
 
 ```bash
 python test_transcription.py --config whisper_cpu_fp32.json --audio_path "cricketLong-Trimmed (1).wav" --language hi
