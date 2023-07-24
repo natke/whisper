@@ -67,7 +67,7 @@
    processor.save_pretrained(model_path)
    ```
 
-3. Prepare the configs for Olive processing
+2. Prepare the configs for Olive processing
 
    Once you have a model in HuggingFace format (local or hosted on the HuggingFace model hub), then prepare the configs for Olive processing.
 
