@@ -46,9 +46,7 @@
    python -m transformers.models.whisper.convert_openai_to_hf --checkpoint_path <<location of your OpenAI whisper weights file .pt>> --pytorch_dump_folder_path data/whisper-hindi
    ```
 
-2. (Optional) Save HuggingFace weights to full model format
-
-   If you have PyTorch model weights, then load and save them into a model suitable for Olive processing using the following script.
+   Then, save the config and processor from the original model variant.
 
    ```python
    from transformers import AutoProcessor, AutoConfig
@@ -60,7 +58,8 @@
    config = AutoConfig.from_pretrained(original_model_name)
    processor = AutoProcessor.from_pretrained(original_model_name)
 
-   # path to save the fine-tuned model in transformers pre-trained model format
+   # path to save the config and processor 
+   # same path where the model weights are saved
    model_path = "data/whisper-hindi"
 
    # save config, processor
@@ -73,8 +72,10 @@
    Once you have a model in HuggingFace format (local or hosted on the HuggingFace model hub), then prepare the configs for Olive processing.
 
    ```bash
-   python prepare_whisper_configs.py --model_name vasista22/whisper-hindi-small --multilingual
+   python prepare_whisper_configs.py --model_name data/whisper-small --multilingual
    ```
+
+   For other models, replace `data/whisper-small` with the path to a model in HuggingFace format. For example `vasista22/whisper-hindi-small` which is a fine-tuned Hindi model from the hub.
 
 ## Generate model and test transcription
 
