@@ -48,35 +48,33 @@
 
 2. (Optional) Save HuggingFace weights to full model format
 
-If you have PyTorch model weights, then load and save them into a model suitable for Olive processing using the following script.
+   If you have PyTorch model weights, then load and save them into a model suitable for Olive processing using the following script.
 
-```python
-from transformers import AutoProcessor, AutoConfig
+   ```python
+   from transformers import AutoProcessor, AutoConfig
 
-# original model. Replace this with the whisper variant you are using 
-original_model_name = "openai/whisper-medium"
+   # original model. Replace this with the whisper variant you are using 
+   original_model_name = "openai/whisper-medium"
+   
+   # load config, processor
+   config = AutoConfig.from_pretrained(original_model_name)
+   processor = AutoProcessor.from_pretrained(original_model_name)
 
-# load config, processor
-config = AutoConfig.from_pretrained(original_model_name)
-processor = AutoProcessor.from_pretrained(original_model_name)
+   # path to save the fine-tuned model in transformers pre-trained model format
+   model_path = "data/whisper-hindi"
 
-# path to save the fine-tuned model in transformers pre-trained model format
-model_path = "data/whisper-hindi"
-
-# save config, processor
-config.save_pretrained(model_path)
-processor.save_pretrained(model_path)
-```
+   # save config, processor
+   config.save_pretrained(model_path)
+   processor.save_pretrained(model_path)
+   ```
 
 3. Prepare the configs for Olive processing
 
-Once you have a model in HuggingFace format (local or hosted on the HuggingFace model hub), then prepare the configs for Olive processing.
+   Once you have a model in HuggingFace format (local or hosted on the HuggingFace model hub), then prepare the configs for Olive processing.
 
-```bash
-python prepare_whisper_configs.py --model_name vasista22/whisper-hindi-small --multilingual
-```
-
-
+   ```bash
+   python prepare_whisper_configs.py --model_name vasista22/whisper-hindi-small --multilingual
+   ```
 
 ## Generate model and test transcription
 
