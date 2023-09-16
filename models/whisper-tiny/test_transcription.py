@@ -4,11 +4,20 @@
 # --------------------------------------------------------------------------
 import argparse
 import json
+import shutil
+import sys
+import tempfile
 from pathlib import Path
 
-import numpy as np
 import onnxruntime as ort
-from onnxruntime_extensions import PyOrtFunction
+
+from olive.evaluator.olive_evaluator import OnnxEvaluator
+from olive.hardware import AcceleratorSpec
+from olive.model import ONNXModel
+
+sys.path.append(str(Path(__file__).parent / "code"))
+
+from whisper_dataset import WhisperDataset  # noqa: E402
 
 # hard-coded audio hyperparameters
 # copied from https://github.com/openai/whisper/blob/main/whisper/audio.py#L12
@@ -23,12 +32,20 @@ N_FRAMES = N_SAMPLES // HOP_LENGTH
 
 def get_args(raw_args):
     parser = argparse.ArgumentParser(description="Test output of Whisper Model")
-    parser.add_argument("--config", type=str, required=True, help="Config")
+    parser.add_argument("--config", type=str, required=True, help="Config used to generate model")
     parser.add_argument(
         "--audio_path",
         type=str,
         default=None,
-        help="Path to audio file. If not provided, will use the test data from the config.",
+        help="Path to audio file. If not provided, will use the test data from the config",
+    )
+    parser.add_argument("--language", type=str, default="english", help="Language spoken in audio")
+    parser.add_argument(
+        "--task",
+        type=str,
+        default="transcribe",
+        choices=["transcribe", "translate"],
+        help="whether to perform X->X speech recognition ('transcribe') or X->English translation ('translate')",
     )
     return parser.parse_args(raw_args)
 
@@ -43,41 +60,57 @@ def main(raw_args=None):
     # load config
     config = json.load(open(args.config, "r"))
 
-    # TODO: change the 0 to the real hardware spec when accelerator is supported
+    # get model information
+    use_audio_decoder = config["passes"]["prepost"]["config"]["tool_command_args"]["use_audio_decoder"]
+    multilingual = config["passes"]["insert_beam_search"]["config"].get("use_forced_decoder_ids", False)
+    if not multilingual and not (args.language == "english" and args.task == "transcribe"):
+        print("Model is not multilingual but custom language/task provided. Will ignore custom language/task.")
+
+    # get device and ep
+    device = config["systems"]["local_system"]["config"]["accelerators"][0]
+    ep = config["engine"]["execution_providers"][0]
+    accelerator_spec = AcceleratorSpec(accelerator_type=device, execution_provider=ep)
+
     # load output model json
-    output_model_json_path = Path(config["engine"]["output_dir"]) / f"{config['engine']['output_name']}_0_model.json"
-    output_model_json = json.load(open(output_model_json_path, "r"))
+    output_model_json_path = Path(config["engine"]["output_dir"])
+    for model_json in output_model_json_path.glob(
+        f"**/{config['engine']['output_name']}_{accelerator_spec}_model.json"
+    ):
+        output_model_json = json.load(open(model_json, "r"))
+        break
 
     # load output model onnx
-    output_model_path = output_model_json["config"]["model_path"]
-    model = PyOrtFunction.from_model(output_model_path)
+    olive_model = ONNXModel(**output_model_json["config"])
 
     # load audio data
     if not args.audio_path:
         args.audio_path = Path(config["passes"]["prepost"]["config"]["tool_command_args"]["testdata_filepath"])
-    use_audio_decoder = config["passes"]["prepost"]["config"]["tool_command_args"]["use_audio_decoder"]
-    if use_audio_decoder:
-        with open(args.audio_path, "rb") as _f:
-            audio_blob = np.asarray(list(_f.read()), dtype=np.uint8)
-    else:
-        import librosa
 
-        audio_blob, _ = librosa.load(args.audio_path)
+    # temporary directory for storing audio file
+    temp_dir = tempfile.TemporaryDirectory()
+    temp_dir_path = Path(temp_dir.name)
+    temp_audio_path = temp_dir_path / Path(args.audio_path).name
+    shutil.copy(args.audio_path, temp_audio_path)
 
-    audio_blob = np.expand_dims(audio_blob, axis=0)
-
-    output_text = model(
-        audio_blob,
-        np.asarray([200], dtype=np.int32),
-        np.asarray([0], dtype=np.int32),
-        np.asarray([2], dtype=np.int32),
-        np.asarray([1], dtype=np.int32),
-        np.asarray([1.0], dtype=np.float32),
-        np.asarray([1.0], dtype=np.float32),
-        np.zeros((1, N_MELS, N_FRAMES)).astype(np.int32),
+    # dataset
+    dataset = WhisperDataset(
+        data_dir=temp_dir_path,
+        use_audio_decoder=use_audio_decoder,
+        file_ext=temp_audio_path.suffix,
+        language=args.language,
+        task=args.task,
     )
-    print(output_text)
+
+    # create inference session
+    session = olive_model.prepare_session(None, device, [ep])
+
+    # get output
+    input, _ = dataset[0]
+    input = OnnxEvaluator.format_input(input, olive_model.get_io_config())
+    output = session.run(None, input)
+    return output[0][0]
 
 
 if __name__ == "__main__":
-    main()
+    output_text = main()
+    print(output_text)

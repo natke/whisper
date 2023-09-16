@@ -1,0 +1,7 @@
+{
+    "latency-avg": {
+        "value": 627.80275,
+        "priority": 1,
+        "higher_is_better": false
+    }
+}

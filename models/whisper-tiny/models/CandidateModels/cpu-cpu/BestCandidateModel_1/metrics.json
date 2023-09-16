@@ -1,0 +1,10 @@
+{
+    "input_model_metrics": null,
+    "candidate_model_metrics": {
+        "latency-avg": {
+            "value": 627.80275,
+            "priority": 1,
+            "higher_is_better": false
+        }
+    }
+}

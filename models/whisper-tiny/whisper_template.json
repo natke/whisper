@@ -1,22 +1,23 @@
 {
-    "verbose": true,
     "input_model":{
         "type": "PyTorchModel",
         "config": {
-            "model_script": "user_script.py",
+            "model_script": "code/user_script.py",
+            "script_dir": "code",
             "hf_config": {
                 "model_class" : "WhisperForConditionalGeneration",
                 "model_name" : "<place_holder>",
-                "use_ort_implementation": true,
                 "components" : [
                     {
                         "name": "encoder_decoder_init",
-                        "io_config": "<place_holder>",
+                        "io_config": "get_encdec_io_config",
+                        "component_func": "get_encoder_decoder_init",
                         "dummy_inputs_func": "encoder_decoder_init_dummy_inputs"
                     },
                     {
                         "name": "decoder",
-                        "io_config": "<place_holder>",
+                        "io_config": "get_dec_io_config",
+                        "component_func": "get_decoder",
                         "dummy_inputs_func": "decoder_dummy_inputs"
                     }
                 ]
@@ -26,7 +27,7 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "config": {"device": "<place_holder>"}
+            "config": {"accelerators": ["<place_holder>"]}
         }
     },
     "evaluators": {
@@ -35,9 +36,12 @@
                 {
                     "name": "latency",
                     "type": "latency",
-                    "sub_type": "avg",
+                    "sub_types": [
+                        {"name": "avg", "priority": 1}
+                    ],
                     "user_config": {
-                        "user_script": "user_script.py",
+                        "user_script": "code/user_script.py",
+                        "script_dir": "code",
                         "data_dir": "data",
                         "dataloader_func": "<place_holder>"
                     }
@@ -54,10 +58,8 @@
         },
         "transformers_optimization": {
             "type": "OrtTransformersOptimization",
+            "disable_search": true,
             "config": {
-                "model_type": "bart",
-                "num_heads": "<place_holder>",
-                "hidden_size": "<place_holder>",
                 "optimization_options": {"use_multi_head_attention": true},
                 "use_gpu": "<place_holder>"
             }
@@ -75,15 +77,22 @@
                 "MatMulConstBOnly": false
             }
         },
+        "inc_dynamic_quantization": {
+            "type": "IncDynamicQuantization",
+            "disable_search": true
+        },
         "insert_beam_search" : {
-            "type" : "InsertBeamSearch"
+            "type" : "InsertBeamSearch",
+            "config": {
+                "use_forced_decoder_ids": "<place_holder>"
+            }
         },
         "prepost": {
             "type": "AppendPrePostProcessingOps",
             "config": {
                 "tool_command": "whisper",
                 "tool_command_args": {
-                    "model_name": "<place_holder>",
+                    "model_name" : "<place_holder>",
                     "testdata_filepath": "<place_holder>",
                     "use_audio_decoder" : "<place_holder>"
                 }
@@ -91,10 +100,13 @@
         }
     },
     "engine": {
+        "log_severity_level": 0,
         "search_strategy": false,
         "host": "local_system",
         "target": "local_system",
         "evaluator": "common_evaluator",
+        "evaluate_input_model": false,
+        "execution_providers": "<place_holder>",
         "clean_cache": false,
         "cache_dir": "cache",
         "output_dir": "models",
