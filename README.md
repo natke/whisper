@@ -34,6 +34,12 @@ Run from [optimum](./optimum)
 
 ## Generate all in one model with Olive
 
+Install Olive from source:
+
+```bash
+python -m pip install git+https://github.com/microsoft/Olive.git
+```
+
 Configs for each of the model variants can be found in [./models](models)
 
 ```bash
@@ -42,6 +48,8 @@ python prepare_whisper_configs.py --model_name openai/whisper-tiny.en
 python -m olive.workflows.run --config whisper_cpu_int8.json --setup
 python -m olive.workflows.run --config whisper_cpu_int8.json
 ```
+
+In the `models` folder, you will find a folder called `CandidateModels/cpu-cpu/BestCandidateModel_1`, which contains the model `model.onnx`. Copy the model into your application directory.
 
 ## Run with ONNX Runtime
 
